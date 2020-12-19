@@ -5,31 +5,18 @@ import java.awt.geom.Ellipse2D;
 public class RoundButton extends JButton {
 
 	public RoundButton() {
-
-		setBackground(Color.lightGray);
 		setFocusable(false);
-
-	    /*
-	     These statements enlarge the button so that it
-	     becomes a circle rather than an oval.
-	    */
-
-	    /*
-	     This call causes the JButton not to paint the background.
-	     This allows us to paint a round background.
-	    */
 		setContentAreaFilled(false);
 		setBorder(null);
-
 	}
 
 	protected void paintComponent(Graphics g) {
-		if (getModel().isArmed()) {
+/*		if (getModel().isArmed()) {
 			g.setColor(Const.FIELD_CLICKED_C);
 		} else {
 			g.setColor(Const.FIELD_C);
-		}
-		g.fillOval(0, 0, getSize().width - 1, getSize().height - 1);
+		}*/
+		g.fillOval(0, 0, getSize().width, getSize().height);
 
 		super.paintComponent(g);
 	}
