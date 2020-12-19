@@ -68,8 +68,80 @@ public class Window extends JFrame {
 		public static FieldButton[][] fields = FieldButton.initArray(Const.BOARD_LENGTH, Const.BOARD_LENGTH);
 		public static PawnButton[][] pawns = PawnButton.initArray(Const.BOARD_LENGTH, Const.BOARD_LENGTH);
 
+		static boolean jumpLeft(int i, int j) {
+			if (j < 2) {
+				return false;
+			}
+			if (j < 4 && (i < 2 || i > 4)) {
+				if (!(((i == 1 || i == 5) && j == 3) && State.european)) {
+					return false;
+				}
+			}
+			if (!State.pawns[i][j - 2] && State.pawns[i][j - 1]) {
+				State.pawns[i][j - 1] = false;
+				State.pawns[i][j] = false;
+				State.pawns[i][j - 2] = true;
+				return true;
+			}
+			return false;
+		}
 
-		//TODO: sprawdzanie czy można zrobić skok i bicie pionka
+		static boolean jumpRight(int i, int j) {
+			if (j > 4) {
+				return false;
+			}
+			if (j > 2 && (i < 2 || i > 4)) {
+				if (!(((i == 1 || i == 5) && j == 3) && State.european)) {
+					return false;
+				}
+			}
+
+			if (!State.pawns[i][j + 2] && State.pawns[i][j + 1]) {
+				State.pawns[i][j + 1] = false;
+				State.pawns[i][j] = false;
+				State.pawns[i][j + 2] = true;
+				return true;
+			}
+			return false;
+		}
+
+		static boolean jumpUp(int i, int j) {
+			if (i < 2) {
+				return false;
+			}
+			if (i < 4 && (j < 2 || j > 4)) {
+				if (!(((j == 1 || j == 5) && i == 3) && State.european)) {
+					return false;
+				}
+			}
+
+			if (!State.pawns[i - 2][j] && State.pawns[i - 1][j]) {
+				State.pawns[i - 1][j] = false;
+				State.pawns[i][j] = false;
+				State.pawns[i - 2][j] = true;
+				return true;
+			}
+			return false;
+		}
+
+		static boolean jumpDown(int i, int j) {
+			if (i > 4) {
+				return false;
+			}
+			if (i > 2 && (j < 2 || j > 4)) {
+				if (!(((j == 1 || j == 5) && i == 3) && State.european)) {
+					return false;
+				}
+			}
+
+			if (!State.pawns[i + 2][j] && State.pawns[i + 1][j]) {
+				State.pawns[i + 1][j] = false;
+				State.pawns[i][j] = false;
+				State.pawns[i + 2][j] = true;
+				return true;
+			}
+			return false;
+		}
 	}
 
 
@@ -207,6 +279,13 @@ public class Window extends JFrame {
 		makeMenu();
 
 		Logic.setStartingPos();
+
+		/*System.out.println(Logic.jumpRight(3, 1) + "R 3,2");
+		System.out.println(Logic.jumpUp(5, 2) + "U 5,2");
+		System.out.println(Logic.jumpDown(2, 2) + "D 2,2");
+		System.out.println(State.pawns[3][3]);
+*/
+
 		JPanel board = new Board();
 		add(board);
 
@@ -219,7 +298,5 @@ public class Window extends JFrame {
 		add(BorderLayout.SOUTH, info);
 
 		setVisible(true);
-		System.out.println(Const.FIELDS_EU[3][3]);
-
 	}
 }
