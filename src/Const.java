@@ -2,7 +2,6 @@ import java.awt.*;
 
 public class Const {
 	static final int WINDOW_SIZE = 800,
-			//SIZE_Y = 850,
 			OFFSET = 37,
 			BOARD_D = 600,
 			PAWN_D = 40,
@@ -36,4 +35,24 @@ public class Const {
 			{false, false, true, true, true, false, false},
 	};
 
+	static enum jumpType {LEFT, RIGHT, UP, DOWN}
+
+
+	public static int centerPosY(int objDiameter) {
+		return (WINDOW_SIZE - objDiameter) / 2 - OFFSET;
+	}
+
+	public static int centerPosX(int objDiameter) {
+		return (WINDOW_SIZE - objDiameter) / 2;
+	}
+
+	public static int evalPawnPosX(int j) {
+		int field = BOARD_D / 7;
+		return centerPosX(PAWN_D) + (j - 3) * field;
+	}
+
+	public static int evalPawnPosY(int i) {
+		int field = BOARD_D / (BOARD_LENGTH + 1);
+		return centerPosY(PAWN_D) + (i - 3) * field;
+	}
 }
