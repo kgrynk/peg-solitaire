@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
-public class RoundButton extends JButton {
+public class RoundButton extends JToggleButton {
 
 	public RoundButton() {
 		setFocusable(false);
@@ -11,11 +11,6 @@ public class RoundButton extends JButton {
 	}
 
 	protected void paintComponent(Graphics g) {
-/*		if (getModel().isArmed()) {
-			g.setColor(Const.FIELD_CLICKED_C);
-		} else {
-			g.setColor(Const.FIELD_C);
-		}*/
 		g.fillOval(0, 0, getSize().width, getSize().height);
 
 		super.paintComponent(g);

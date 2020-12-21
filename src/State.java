@@ -11,4 +11,6 @@ public class State {
 			{false, false, true, true, true, false, false},
 			{false, false, true, true, true, false, false},
 	};
+	public static boolean[][] isButtonActive = new boolean[Const.BOARD_LENGTH][Const.BOARD_LENGTH];
+
 }
