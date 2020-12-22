@@ -11,12 +11,12 @@ public class Board extends JPanel {
 		// Board //
 		int d = Const.BOARD_D;
 		graphics.setColor(Const.BOARD_C);
-		graphics.fillOval(Const.centerPosX(d), Const.centerPosY(d), d, d);
+		graphics.fillOval(Logic.centerPosX(d), Logic.centerPosY(d), d, d);
 
 		// Outline //
 		graphics.setStroke(new BasicStroke(3));
 		graphics.setColor(Const.OUTLINE_C);
-		graphics.drawOval(Const.centerPosX(d), Const.centerPosY(d), d, d);
+		graphics.drawOval(Logic.centerPosX(d), Logic.centerPosY(d), d, d);
 
 	}
 

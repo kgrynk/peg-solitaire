@@ -1,9 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 
 public class Main {
+
 	static class Window extends JFrame {
 
 		class Bar extends JMenuBar {
@@ -38,21 +38,25 @@ public class Main {
 				game.add(end);
 
 
-				select = new JMenuItem((new AbstractAction("Zaznacz") {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						//TODO: wybranie pionka
-					}
-				}));
-				moves.add(select);
-
-				jump = new JMenuItem((new AbstractAction("Skocz") {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						//TODO: wybranie skoku (coś z tego popupa)
-					}
-				}));
+				jump = new JMenu("Skocz");
+				jump.add(cantJump);
 				moves.add(jump);
+
+				select = new JMenuItem((new AbstractAction("Zaznacz") {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						State.selection = true;
+						State.jumpI = 3;
+						State.jumpJ = 3;
+						Logic.noAcitveButtons();
+						State.isButtonActive[State.jumpI][State.jumpJ] = true;
+						gameUpdate();
+						repaint();
+					}
+				}));
+
+				moves.add(select);
 
 
 				boardTypeUK = new JRadioButtonMenuItem((new AbstractAction("Plansza brytyjska") {
@@ -130,7 +134,6 @@ public class Main {
 
 		static class PawnButton extends RoundButton {
 
-
 			protected void paintComponent(Graphics g) {
 				if (getModel().isArmed() || getModel().isSelected()) {
 					g.setColor(Const.PAWN_CLICKED_C);
@@ -145,6 +148,33 @@ public class Main {
 		static class ButtonMenu extends JPopupMenu {
 			JMenuItem left, right, up, down;
 			JLabel cantJump;
+
+			public JMenuItem getMenuItem(Const.jumpType type) {
+				switch (type) {
+					case LEFT -> {
+						return left;
+					}
+					case RIGHT -> {
+						return right;
+					}
+					case UP -> {
+						return up;
+					}
+					case DOWN -> {
+						return down;
+					}
+				}
+				return null;
+			}
+
+			public void setMenuItem(JMenuItem item, Const.jumpType type) {
+				switch (type) {
+					case LEFT -> left = item;
+					case RIGHT -> right = item;
+					case UP -> up = item;
+					case DOWN -> down = item;
+				}
+			}
 		}
 
 		public static FieldButton[][] fields = new FieldButton[Const.BOARD_LENGTH][Const.BOARD_LENGTH];
@@ -155,6 +185,8 @@ public class Main {
 		Board board = new Board();
 		JLabel info = new JLabel();
 
+		static JLabel cantJump = new JLabel("Cannot jump!");
+
 		private void addButtons() {
 			for (int i = 0; i < Const.BOARD_LENGTH; i++) {
 				for (int j = 0; j < Const.BOARD_LENGTH; j++) {
@@ -164,76 +196,39 @@ public class Main {
 
 					int finalI = i;
 					int finalJ = j;
-					menus[i][j].left = new JMenuItem(new AbstractAction("Jump left") {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Logic.jump(finalI, finalJ, Const.jumpType.LEFT);
-							// System.out.println("jumped left!");
-							gameUpdate();
-							repaint();
-						}
-					});
-					menus[i][j].right = new JMenuItem(new AbstractAction("Jump right") {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Logic.jump(finalI, finalJ, Const.jumpType.RIGHT);
-							// System.out.println("jumped right!");
-							gameUpdate();
-							repaint();
-						}
-					});
-					menus[i][j].up = new JMenuItem(new AbstractAction("Jump up") {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Logic.jump(finalI, finalJ, Const.jumpType.UP);
-							// System.out.println("jumped up!");
-							gameUpdate();
-							repaint();
-						}
-					});
-					menus[i][j].down = new JMenuItem(new AbstractAction("Jump down") {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Logic.jump(finalI, finalJ, Const.jumpType.DOWN);
-							// System.out.println("jumped down!");
-							gameUpdate();
-							repaint();
-						}
-					});
 
-					menus[i][j].cantJump = new JLabel("Cannot jump!");
+					for (Const.jumpType type : Const.typeList) {
+						JMenuItem item = new JMenuItem(new AbstractAction("Jump " + type) {
+							@Override
+							public void actionPerformed(ActionEvent e) {
+								Logic.jump(finalI, finalJ, type);
+								gameUpdate();
+								repaint();
+							}
+						});
+						menus[i][j].setMenuItem(item, type);
+					}
+					menus[i][j].cantJump = cantJump;
 
 					pawns[i][j].addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent ev) {
 							if (State.makingJump) {
-								State.isButtonActive = new boolean[Const.BOARD_LENGTH][Const.BOARD_LENGTH];
+								Logic.noAcitveButtons();
 								State.makingJump = false;
-								gameUpdate();
-								repaint();
 							} else {
-								if (Logic.canJump(finalI, finalJ, Const.jumpType.LEFT)) {
-									State.isButtonActive[finalI][finalJ - 2] = true;
-									State.makingJump = true;
-								}
-								if (Logic.canJump(finalI, finalJ, Const.jumpType.RIGHT)) {
-									State.isButtonActive[finalI][finalJ + 2] = true;
-									State.makingJump = true;
-								}
-								if (Logic.canJump(finalI, finalJ, Const.jumpType.UP)) {
-									State.isButtonActive[finalI - 2][finalJ] = true;
-									State.makingJump = true;
-								}
-								if (Logic.canJump(finalI, finalJ, Const.jumpType.DOWN)) {
-									State.isButtonActive[finalI + 2][finalJ] = true;
-									State.makingJump = true;
+								for (Const.jumpType type : Const.typeList) {
+									if (Logic.canJump(finalI, finalJ, type)) {
+										State.isButtonActive[Logic.jumpPosI(finalI, type)][Logic.jumpPosJ(finalJ, type)] = true;
+										State.makingJump = true;
+									}
 								}
 								if (State.makingJump) {
 									State.jumpI = finalI;
 									State.jumpJ = finalJ;
 								}
-								gameUpdate();
-								repaint();
 							}
+							gameUpdate();
+							repaint();
 						}
 					});
 
@@ -246,19 +241,16 @@ public class Main {
 								} else {
 									System.out.println("null");
 								}
-								State.isButtonActive = new boolean[Const.BOARD_LENGTH][Const.BOARD_LENGTH];
 								State.makingJump = false;
-								gameUpdate();
-								repaint();
-							} else {
-								State.isButtonActive = new boolean[Const.BOARD_LENGTH][Const.BOARD_LENGTH];
-								gameUpdate();
-								repaint();
 							}
+
+							Logic.noAcitveButtons();
+							gameUpdate();
+							repaint();
 						}
 					});
-					pawns[i][j].setBounds(Const.evalPawnPosX(j), Const.evalPawnPosY(i), Const.PAWN_D, Const.PAWN_D);
-					fields[i][j].setBounds(Const.evalPawnPosX(j), Const.evalPawnPosY(i), Const.PAWN_D, Const.PAWN_D);
+					pawns[i][j].setBounds(Logic.evalPawnPosX(j), Logic.evalPawnPosY(i), Const.PAWN_D, Const.PAWN_D);
+					fields[i][j].setBounds(Logic.evalPawnPosX(j), Logic.evalPawnPosY(i), Const.PAWN_D, Const.PAWN_D);
 				}
 			}
 		}
@@ -288,24 +280,14 @@ public class Main {
 						board.add(pawns[i][j]);
 						JPopupMenu popupMenu = new JPopupMenu();
 
-						boolean cantJump = true;
-						if (Logic.canJump(i, j, Const.jumpType.LEFT)) {
-							popupMenu.add(menus[i][j].left);
-							cantJump = false;
+						boolean canJump = false;
+						for (Const.jumpType type : Const.typeList) {
+							if (Logic.canJump(i, j, type)) {
+								popupMenu.add(menus[i][j].getMenuItem(type));
+								canJump = true;
+							}
 						}
-						if (Logic.canJump(i, j, Const.jumpType.RIGHT)) {
-							popupMenu.add(menus[i][j].right);
-							cantJump = false;
-						}
-						if (Logic.canJump(i, j, Const.jumpType.UP)) {
-							popupMenu.add(menus[i][j].up);
-							cantJump = false;
-						}
-						if (Logic.canJump(i, j, Const.jumpType.DOWN)) {
-							popupMenu.add(menus[i][j].down);
-							cantJump = false;
-						}
-						if (cantJump) {
+						if (!canJump) {
 							popupMenu.add(menus[i][j].cantJump);
 						}
 						pawns[i][j].setComponentPopupMenu(popupMenu);
@@ -342,12 +324,57 @@ public class Main {
 				bar.boardTypeUK.setEnabled(false);
 				bar.boardTypeEU.setEnabled(false);
 			}
-		}
 
+			if(State.selection){
+				boolean canJump = false;
+				ButtonMenu menu = menus[State.jumpI][State.jumpJ];
+				bar.jump.remove(cantJump);
+				for (Const.jumpType type : Const.typeList) {
+					bar.jump.remove(menu.getMenuItem(type));
+					if (Logic.canJump(State.jumpI, State.jumpJ, type)) {
+						bar.jump.add(menu.getMenuItem(type));
+						canJump = true;
+					}
+				}
+				if (!canJump) {
+					bar.jump.add(menu.cantJump);
+				}
+			}
+		}
+		class KeySelectListener extends KeyAdapter{
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(State.selection){
+					for (Const.jumpType type : Const.typeList) {
+						int eventType = 0;
+						switch (type) {
+							case LEFT -> eventType = KeyEvent.VK_LEFT;
+							case RIGHT -> eventType = KeyEvent.VK_RIGHT;
+							case UP -> eventType = KeyEvent.VK_UP;
+							case DOWN -> eventType = KeyEvent.VK_DOWN;
+						}
+						if (e.getKeyCode() == eventType) {
+							int i = Logic.midPosI(State.jumpI, type);
+							int j = Logic.midPosJ(State.jumpJ, type);
+							if (Logic.isField(i, j, State.european)) {
+								State.jumpI = i;
+								State.jumpJ = j;
+								Logic.noAcitveButtons();
+								State.isButtonActive[i][j] = true;
+							}
+							gameUpdate();
+							repaint();
+						}
+
+					}
+				}}
+
+		}
 
 		public Window() {
 			super("Samotnik");
 
+			addKeyListener(new KeySelectListener());
 			setSize(Const.WINDOW_SIZE, Const.WINDOW_SIZE);
 			setLocationRelativeTo(null);
 			setResizable(false);

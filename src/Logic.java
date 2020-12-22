@@ -20,104 +20,126 @@ public class Logic {
 	}
 
 	static Const.jumpType makeValidJump(int i, int j, int iJump, int jJump) {
-		Const.jumpType type = null;
-		if (i == iJump) {
-			if (j - 2 == jJump) {
-				type = Const.jumpType.LEFT;
-			} else if (j + 2 == jJump) {
-				type = Const.jumpType.RIGHT;
-			}
-		} else if (j == jJump) {
-			if (i - 2 == iJump) {
-				type = Const.jumpType.UP;
-			} else if (i + 2 == iJump) {
-				type = Const.jumpType.DOWN;
+		for (Const.jumpType type : Const.typeList) {
+			if (iJump == jumpPosI(i, type) && jJump == jumpPosJ(j, type)) {
+				jump(i, j, type);
+				return type;
 			}
 		}
-		jump(i, j, type);
-		return type;
+		return null;
 	}
 
 	static boolean canJump(int i, int j, Const.jumpType type) {
 		if (type == null) {
 			return false;
 		}
-		switch (type) {
-			case LEFT -> {
-				if (j < 2) {
-					return false;
-				}
-				if (j < 4 && (i < 2 || i > 4)) {
-					if (!(((i == 1 || i == 5) && j == 3) && State.european)) {
-						return false;
-					}
-				}
-				return !State.pawns[i][j - 2] && State.pawns[i][j - 1];
-			}
-			case RIGHT -> {
-				if (j > 4) {
-					return false;
-				}
-				if (j > 2 && (i < 2 || i > 4)) {
-					if (!(((i == 1 || i == 5) && j == 3) && State.european)) {
-						return false;
-					}
-				}
-
-				return !State.pawns[i][j + 2] && State.pawns[i][j + 1];
-			}
-			case UP -> {
-				if (i < 2) {
-					return false;
-				}
-				if (i < 4 && (j < 2 || j > 4)) {
-					if (!(((j == 1 || j == 5) && i == 3) && State.european)) {
-						return false;
-					}
-				}
-
-				return !State.pawns[i - 2][j] && State.pawns[i - 1][j];
-			}
-			case DOWN -> {
-				if (i > 4) {
-					return false;
-				}
-				if (i > 2 && (j < 2 || j > 4)) {
-					if (!(((j == 1 || j == 5) && i == 3) && State.european)) {
-						return false;
-					}
-				}
-
-				return !State.pawns[i + 2][j] && State.pawns[i + 1][j];
-			}
+		if (isField(i, j, State.european)
+				&& isField(jumpPosI(i, type), jumpPosJ(j, type), State.european)
+				&& isField(midPosI(i, type), midPosJ(j, type), State.european)) {
+			return !State.pawns[jumpPosI(i, type)][jumpPosJ(j, type)]
+					&& State.pawns[midPosI(i, type)][midPosJ(j, type)];
 		}
 		return false;
 	}
 
-	static boolean jump(int i, int j, Const.jumpType type) {
+	static void jump(int i, int j, Const.jumpType type) {
 		if (canJump(i, j, type)) {
-			switch (type) {
-				case LEFT -> {
-					State.pawns[i][j - 1] = false;
-					State.pawns[i][j - 2] = true;
-				}
-				case RIGHT -> {
-					State.pawns[i][j + 1] = false;
-					State.pawns[i][j + 2] = true;
-				}
-				case UP -> {
-					State.pawns[i - 1][j] = false;
-					State.pawns[i - 2][j] = true;
-				}
-				case DOWN -> {
-					State.pawns[i + 1][j] = false;
-					State.pawns[i + 2][j] = true;
-				}
-			}
+			State.pawns[jumpPosI(i, type)][jumpPosJ(j, type)] = true;
+			State.pawns[midPosI(i, type)][midPosJ(j, type)] = false;
 			State.pawns[i][j] = false;
 			State.pawnsLeft--;
-			return true;
+		}
+	}
+
+	static int jumpPosI(int i, Const.jumpType type) {
+		switch (type) {
+			case LEFT, RIGHT -> {
+				return i;
+			}
+			case UP -> {
+				return i - 2;
+			}
+			case DOWN -> {
+				return i + 2;
+			}
+		}
+		return -1;
+	}
+
+	static int jumpPosJ(int j, Const.jumpType type) {
+		switch (type) {
+			case LEFT -> {
+				return j - 2;
+			}
+			case RIGHT -> {
+				return j + 2;
+			}
+			case UP, DOWN -> {
+				return j;
+			}
+		}
+		return -1;
+	}
+
+	static int midPosI(int i, Const.jumpType type) {
+		switch (type) {
+			case LEFT, RIGHT -> {
+				return i;
+			}
+			case UP -> {
+				return i - 1;
+			}
+			case DOWN -> {
+				return i + 1;
+			}
+		}
+		return -1;
+	}
+
+
+	static int midPosJ(int j, Const.jumpType type) {
+		switch (type) {
+			case LEFT -> {
+				return j - 1;
+			}
+			case RIGHT -> {
+				return j + 1;
+			}
+			case UP, DOWN -> {
+				return j;
+			}
+		}
+		return -1;
+	}
+
+	public static boolean isField(int i, int j, boolean european) {
+		if (i >= 0 && j >= 0 && i < 7 && j < 7) {
+			if (european)
+				return Const.FIELDS_EU[i][j];
+			return Const.FIELDS_UK[i][j];
 		}
 		return false;
+	}
+
+	public static int centerPosY(int objDiameter) {
+		return (Const.WINDOW_SIZE - objDiameter) / 2 - Const.OFFSET;
+	}
+
+	public static int centerPosX(int objDiameter) {
+		return (Const.WINDOW_SIZE - objDiameter) / 2;
+	}
+
+	public static int evalPawnPosX(int j) {
+		int field = Const.BOARD_D / 7;
+		return centerPosX(Const.PAWN_D) + (j - 3) * field;
+	}
+
+	public static int evalPawnPosY(int i) {
+		int field = Const.BOARD_D / (Const.BOARD_LENGTH + 1);
+		return centerPosY(Const.PAWN_D) + (i - 3) * field;
+	}
+
+	public static void noAcitveButtons(){
+		State.isButtonActive = new boolean[Const.BOARD_LENGTH][Const.BOARD_LENGTH];
 	}
 }
