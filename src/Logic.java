@@ -1,6 +1,9 @@
 import java.util.Arrays;
 
+/* Game logic procedures */
 public class Logic {
+
+	/* Initialize game state */
 	static void setStartingPos() {
 		if (State.european) {
 			for (int i = 0; i < Const.BOARD_LENGTH; i++) {
@@ -19,6 +22,7 @@ public class Logic {
 		}
 	}
 
+	/* For given coordinates returns jump direction */
 	static Const.jumpType makeValidJump(int i, int j, int iJump, int jJump) {
 		for (Const.jumpType type : Const.typeList) {
 			if (iJump == jumpPosI(i, type) && jJump == jumpPosJ(j, type)) {
@@ -29,6 +33,7 @@ public class Logic {
 		return null;
 	}
 
+	/* Returns true if jump is legal */
 	static boolean canJump(int i, int j, Const.jumpType type) {
 		if (type == null) {
 			return false;
@@ -42,6 +47,7 @@ public class Logic {
 		return false;
 	}
 
+	/* For given direction makes jump (changes game state) */
 	static void jump(int i, int j, Const.jumpType type) {
 		if (canJump(i, j, type)) {
 			State.pawns[jumpPosI(i, type)][jumpPosJ(j, type)] = true;
@@ -51,6 +57,7 @@ public class Logic {
 		}
 	}
 
+	/* For given jump direction calculates dx */
 	static int jumpPosI(int i, Const.jumpType type) {
 		switch (type) {
 			case LEFT, RIGHT -> {
@@ -66,6 +73,7 @@ public class Logic {
 		return -1;
 	}
 
+	/* For given jump direction calculates dy */
 	static int jumpPosJ(int j, Const.jumpType type) {
 		switch (type) {
 			case LEFT -> {
@@ -81,6 +89,7 @@ public class Logic {
 		return -1;
 	}
 
+	/* For given jump direction calculates beaten pawn dx */
 	static int midPosI(int i, Const.jumpType type) {
 		switch (type) {
 			case LEFT, RIGHT -> {
@@ -97,6 +106,7 @@ public class Logic {
 	}
 
 
+	/* For given jump direction calculates beaten pawn dy */
 	static int midPosJ(int j, Const.jumpType type) {
 		switch (type) {
 			case LEFT -> {
@@ -139,6 +149,7 @@ public class Logic {
 		return centerPosY(Const.PAWN_D) + (i - 3) * field;
 	}
 
+	/* Deactive all buttons */
 	public static void noAcitveButtons(){
 		State.isButtonActive = new boolean[Const.BOARD_LENGTH][Const.BOARD_LENGTH];
 	}

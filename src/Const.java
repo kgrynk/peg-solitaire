@@ -1,7 +1,9 @@
 import java.awt.*;
 
+/* Constants class */
 public class Const {
 	static final int WINDOW_SIZE = 800,
+			ABOUT_SIZE = 300,
 			OFFSET = 37,
 			BOARD_D = 600,
 			PAWN_D = 40,
@@ -21,6 +23,7 @@ public class Const {
 
 	static jumpType[] typeList = {jumpType.LEFT, jumpType.RIGHT, jumpType.UP, jumpType.DOWN};
 
+	/* UK board */
 	static final boolean[][] FIELDS_UK = {{false, false, true, true, true, false, false},
 			{false, false, true, true, true, false, false},
 			{true, true, true, true, true, true, true},
@@ -30,6 +33,7 @@ public class Const {
 			{false, false, true, true, true, false, false},
 	};
 
+	/* European board */
 	static final boolean[][] FIELDS_EU = {{false, false, true, true, true, false, false},
 			{false, true, true, true, true, true, false},
 			{true, true, true, true, true, true, true},

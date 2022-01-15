@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 
+/* Game board */
 public class Board extends JPanel {
 
 	@Override
@@ -8,12 +9,12 @@ public class Board extends JPanel {
 		super.paintComponent(g);
 		Graphics2D graphics = (Graphics2D) g;
 
-		// Board //
+		/* Draw board*/
 		int d = Const.BOARD_D;
 		graphics.setColor(Const.BOARD_C);
 		graphics.fillOval(Logic.centerPosX(d), Logic.centerPosY(d), d, d);
 
-		// Outline //
+		/* Draw outline */
 		graphics.setStroke(new BasicStroke(3));
 		graphics.setColor(Const.OUTLINE_C);
 		graphics.drawOval(Logic.centerPosX(d), Logic.centerPosY(d), d, d);

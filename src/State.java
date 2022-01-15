@@ -1,3 +1,4 @@
+/* Game state */
 public class State {
 	static int pawnsLeft = Const.PAWNS_UK;
 	static boolean european = false,

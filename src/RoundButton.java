@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
+/* Button (pawn/field) class */
 public class RoundButton extends JToggleButton {
 
 	public RoundButton() {
@@ -16,11 +17,11 @@ public class RoundButton extends JToggleButton {
 		super.paintComponent(g);
 	}
 
-	// Hit detection.
+	/* Hit detection */
 	Shape shape;
 
 	public boolean contains(int x, int y) {
-		// If the button has changed size,  make a new shape object.
+		/* If the button has changed size,  make a new shape object */
 		if (shape == null || !shape.getBounds().equals(getBounds())) {
 			shape = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
 		}

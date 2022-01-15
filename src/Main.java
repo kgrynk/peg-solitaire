@@ -6,18 +6,18 @@ public class Main {
 
 	static class Window extends JFrame {
 
+		/* Top menu bar */
 		class Bar extends JMenuBar {
-			JMenu game = new JMenu("Gra"),
-					moves = new JMenu("Ruchy"),
-					sett = new JMenu("Ustawienia"),
-					help = new JMenu("Pomoc");
+			JMenu game = new JMenu("Game"),
+					moves = new JMenu("Moves"),
+					sett = new JMenu("Settings");
 
 
-			JMenuItem start, end, select, jump, boardTypeUK, boardTypeEU, colors, aboutGame, aboutApp;
+			JMenuItem start, end, select, jump, boardTypeUK, boardTypeEU;
 
 			public Bar() {
 
-				start = new JMenuItem((new AbstractAction("Nowa") {
+				start = new JMenuItem((new AbstractAction("New") {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						Logic.setStartingPos();
@@ -29,7 +29,7 @@ public class Main {
 
 				game.addSeparator();
 
-				end = new JMenuItem((new AbstractAction("Zakończ") {
+				end = new JMenuItem((new AbstractAction("Quit") {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						System.exit(0);
@@ -38,11 +38,11 @@ public class Main {
 				game.add(end);
 
 
-				jump = new JMenu("Skocz");
+				jump = new JMenu("Make jump");
 				jump.add(cantJump);
 				moves.add(jump);
 
-				select = new JMenuItem((new AbstractAction("Zaznacz") {
+				select = new JMenuItem((new AbstractAction("Select") {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
@@ -59,7 +59,7 @@ public class Main {
 				moves.add(select);
 
 
-				boardTypeUK = new JRadioButtonMenuItem((new AbstractAction("Plansza brytyjska") {
+				boardTypeUK = new JRadioButtonMenuItem((new AbstractAction("British board") {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						State.european = false;
@@ -70,7 +70,7 @@ public class Main {
 				}));
 				sett.add(boardTypeUK);
 
-				boardTypeEU = new JRadioButtonMenuItem((new AbstractAction("Plansza europejska") {
+				boardTypeEU = new JRadioButtonMenuItem((new AbstractAction("European board") {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						State.european = true;
@@ -86,39 +86,14 @@ public class Main {
 				boardType.add(boardTypeEU);
 				boardTypeUK.setSelected(true);
 
-				colors = new JMenuItem((new AbstractAction("Kolory") {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						//TODO: okienko z kolorami, może zmieniać Consty xd
-					}
-				}));
-				sett.add(colors);
-
-
-				aboutGame = new JMenuItem((new AbstractAction("O grze") {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						//TODO: okienko i opis z wiki
-					}
-				}));
-				help.add(aboutGame);
-
-				aboutApp = new JMenuItem((new AbstractAction("O aplikacji") {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						//TODO: okienko i autor, wersja itd
-					}
-				}));
-				help.add(aboutApp);
-
 				add(game);
 				add(moves);
 				add(sett);
 				add(Box.createGlue());
-				add(help);
 			}
 		}
 
+		/* Field class */
 		static class FieldButton extends RoundButton {
 
 			protected void paintComponent(Graphics g) {
@@ -132,6 +107,7 @@ public class Main {
 			}
 		}
 
+		/* Pawn class */
 		static class PawnButton extends RoundButton {
 
 			protected void paintComponent(Graphics g) {
@@ -145,6 +121,7 @@ public class Main {
 			}
 		}
 
+		/* Right click menu */
 		static class ButtonMenu extends JPopupMenu {
 			JMenuItem left, right, up, down;
 			JLabel cantJump;
@@ -187,6 +164,7 @@ public class Main {
 
 		static JLabel cantJump = new JLabel("Cannot jump!");
 
+		/* Create buttons (pawns/fields) */
 		private void addButtons() {
 			for (int i = 0; i < Const.BOARD_LENGTH; i++) {
 				for (int j = 0; j < Const.BOARD_LENGTH; j++) {
@@ -255,6 +233,7 @@ public class Main {
 			}
 		}
 
+		/* Updates game to actual state from State class */
 		private void gameUpdate() {
 			for (int i = 0; i < Const.BOARD_LENGTH; i++) {
 				for (int j = 0; j < Const.BOARD_LENGTH; j++) {
@@ -312,9 +291,9 @@ public class Main {
 			}
 
 			if (State.pawnsLeft == 1) {
-				info.setText("Gratulacje, wygrałeś!");
+				info.setText("You won!");
 			} else {
-				info.setText("Pozostałe pionki: " + State.pawnsLeft);
+				info.setText("Pawns left: " + State.pawnsLeft);
 			}
 
 			if (State.european && State.pawnsLeft == Const.PAWNS_EU || (State.pawnsLeft == Const.PAWNS_UK)) {
@@ -341,6 +320,8 @@ public class Main {
 				}
 			}
 		}
+
+		/* Keyboard "driver" */
 		class KeySelectListener extends KeyAdapter{
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -371,8 +352,9 @@ public class Main {
 
 		}
 
+		/* Create game window */
 		public Window() {
-			super("Samotnik");
+			super("Peg solitaire");
 
 			addKeyListener(new KeySelectListener());
 			setSize(Const.WINDOW_SIZE, Const.WINDOW_SIZE);
