@@ -10,20 +10,20 @@ public class Board extends JPanel {
 		Graphics2D graphics = (Graphics2D) g;
 
 		/* Draw board*/
-		int d = Const.BOARD_D;
-		graphics.setColor(Const.BOARD_C);
-		graphics.fillOval(Logic.centerPosX(d), Logic.centerPosY(d), d, d);
+		int d = Const.BOARD_DIMENSION;
+		graphics.setColor(Const.BOARD_COLOR);
+		graphics.fillOval(Logic.windowCenterY(d), Logic.windowCenterX(d), d, d);
 
 		/* Draw outline */
 		graphics.setStroke(new BasicStroke(3));
-		graphics.setColor(Const.OUTLINE_C);
-		graphics.drawOval(Logic.centerPosX(d), Logic.centerPosY(d), d, d);
+		graphics.setColor(Const.OUTLINE_COLOR);
+		graphics.drawOval(Logic.windowCenterY(d), Logic.windowCenterX(d), d, d);
 
 	}
 
 	public Board() {
 		setSize(new Dimension(400, 400));
-		setBackground(Const.BACKGROUND_C);
+		setBackground(Const.BACKGROUND_COLOR);
 		setLayout(null);
 	}
 }

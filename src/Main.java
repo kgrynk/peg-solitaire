@@ -10,17 +10,17 @@ public class Main {
 		class Bar extends JMenuBar {
 			JMenu game = new JMenu("Game"),
 					moves = new JMenu("Moves"),
-					sett = new JMenu("Settings");
+					settings = new JMenu("Settings");
 
 
-			JMenuItem start, end, select, jump, boardTypeUK, boardTypeEU;
+			JMenuItem start, end, select, jump, boardTypeBritish, boardTypeEuropean;
 
 			public Bar() {
 
 				start = new JMenuItem((new AbstractAction("New") {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						Logic.setStartingPos();
+						Logic.setStartingPosition();
 						gameUpdate();
 						repaint();
 					}
@@ -49,7 +49,7 @@ public class Main {
 						State.selection = true;
 						State.jumpI = 3;
 						State.jumpJ = 3;
-						Logic.noAcitveButtons();
+						Logic.deactivateButtons();
 						State.isButtonActive[State.jumpI][State.jumpJ] = true;
 						gameUpdate();
 						repaint();
@@ -59,36 +59,36 @@ public class Main {
 				moves.add(select);
 
 
-				boardTypeUK = new JRadioButtonMenuItem((new AbstractAction("British board") {
+				boardTypeBritish = new JRadioButtonMenuItem((new AbstractAction("British board") {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						State.european = false;
-						Logic.setStartingPos();
+						State.isBoardTypeEuropean = false;
+						Logic.setStartingPosition();
 						gameUpdate();
 						repaint();
 					}
 				}));
-				sett.add(boardTypeUK);
+				settings.add(boardTypeBritish);
 
-				boardTypeEU = new JRadioButtonMenuItem((new AbstractAction("European board") {
+				boardTypeEuropean = new JRadioButtonMenuItem((new AbstractAction("European board") {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						State.european = true;
-						Logic.setStartingPos();
+						State.isBoardTypeEuropean = true;
+						Logic.setStartingPosition();
 						gameUpdate();
 						repaint();
 					}
 				}));
-				sett.add(boardTypeEU);
+				settings.add(boardTypeEuropean);
 
 				ButtonGroup boardType = new ButtonGroup();
-				boardType.add(boardTypeUK);
-				boardType.add(boardTypeEU);
-				boardTypeUK.setSelected(true);
+				boardType.add(boardTypeBritish);
+				boardType.add(boardTypeEuropean);
+				boardTypeBritish.setSelected(true);
 
 				add(game);
 				add(moves);
-				add(sett);
+				add(settings);
 				add(Box.createGlue());
 			}
 		}
@@ -98,9 +98,9 @@ public class Main {
 
 			protected void paintComponent(Graphics g) {
 				if (getModel().isArmed() || getModel().isSelected()) {
-					g.setColor(Const.FIELD_CLICKED_C);
+					g.setColor(Const.FIELD_CLICKED_COLOR);
 				} else {
-					g.setColor(Const.FIELD_C);
+					g.setColor(Const.FIELD_COLOR);
 				}
 
 				super.paintComponent(g);
@@ -112,9 +112,9 @@ public class Main {
 
 			protected void paintComponent(Graphics g) {
 				if (getModel().isArmed() || getModel().isSelected()) {
-					g.setColor(Const.PAWN_CLICKED_C);
+					g.setColor(Const.PAWN_CLICKED_COLOR);
 				} else {
-					g.setColor(Const.PAWN_C);
+					g.setColor(Const.PAWN_COLOR);
 				}
 
 				super.paintComponent(g);
@@ -175,11 +175,11 @@ public class Main {
 					int finalI = i;
 					int finalJ = j;
 
-					for (Const.jumpType type : Const.typeList) {
+					for (Const.jumpType type : Const.jumpTypes) {
 						JMenuItem item = new JMenuItem(new AbstractAction("Jump " + type) {
 							@Override
 							public void actionPerformed(ActionEvent e) {
-								Logic.jump(finalI, finalJ, type);
+								Logic.makeJump(finalI, finalJ, type);
 								gameUpdate();
 								repaint();
 							}
@@ -191,12 +191,12 @@ public class Main {
 					pawns[i][j].addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent ev) {
 							if (State.makingJump) {
-								Logic.noAcitveButtons();
+								Logic.deactivateButtons();
 								State.makingJump = false;
 							} else {
-								for (Const.jumpType type : Const.typeList) {
-									if (Logic.canJump(finalI, finalJ, type)) {
-										State.isButtonActive[Logic.jumpPosI(finalI, type)][Logic.jumpPosJ(finalJ, type)] = true;
+								for (Const.jumpType type : Const.jumpTypes) {
+									if (Logic.isJumpLegal(finalI, finalJ, type)) {
+										State.isButtonActive[Logic.jumpingPawnNewI(finalI, type)][Logic.jumpingPawnNewJ(finalJ, type)] = true;
 										State.makingJump = true;
 									}
 								}
@@ -213,7 +213,7 @@ public class Main {
 					fields[i][j].addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent ev) {
 							if (State.makingJump) {
-								Const.jumpType type = Logic.makeValidJump(State.jumpI, State.jumpJ, finalI, finalJ);
+								Const.jumpType type = Logic.getJumpType(State.jumpI, State.jumpJ, finalI, finalJ);
 								if (type != null) {
 									System.out.println(type.toString());
 								} else {
@@ -222,13 +222,19 @@ public class Main {
 								State.makingJump = false;
 							}
 
-							Logic.noAcitveButtons();
+							Logic.deactivateButtons();
 							gameUpdate();
 							repaint();
 						}
 					});
-					pawns[i][j].setBounds(Logic.evalPawnPosX(j), Logic.evalPawnPosY(i), Const.PAWN_D, Const.PAWN_D);
-					fields[i][j].setBounds(Logic.evalPawnPosX(j), Logic.evalPawnPosY(i), Const.PAWN_D, Const.PAWN_D);
+					pawns[i][j].setBounds(Logic.evalPawnPositionX(j),
+							Logic.evalPawnPositionY(i),
+							Const.PAWN_DIMENSION,
+							Const.PAWN_DIMENSION);
+					fields[i][j].setBounds(Logic.evalPawnPositionX(j),
+							Logic.evalPawnPositionY(i),
+							Const.PAWN_DIMENSION,
+							Const.PAWN_DIMENSION);
 				}
 			}
 		}
@@ -243,14 +249,14 @@ public class Main {
 
 					boolean addPawn = false, addField = false;
 
-					if (State.pawns[i][j]) {
+					if (State.pawnActive[i][j]) {
 						addPawn = true;
 					} else {
-						if (State.european) {
-							if (Const.FIELDS_EU[i][j]) {
+						if (State.isBoardTypeEuropean) {
+							if (Const.EUROPEAN_BOARD[i][j]) {
 								addField = true;
 							}
-						} else if (Const.FIELDS_UK[i][j]) {
+						} else if (Const.BRITISH_BOARD[i][j]) {
 							addField = true;
 						}
 					}
@@ -260,8 +266,8 @@ public class Main {
 						JPopupMenu popupMenu = new JPopupMenu();
 
 						boolean canJump = false;
-						for (Const.jumpType type : Const.typeList) {
-							if (Logic.canJump(i, j, type)) {
+						for (Const.jumpType type : Const.jumpTypes) {
+							if (Logic.isJumpLegal(i, j, type)) {
 								popupMenu.add(menus[i][j].getMenuItem(type));
 								canJump = true;
 							}
@@ -296,21 +302,23 @@ public class Main {
 				info.setText("Pawns left: " + State.pawnsLeft);
 			}
 
-			if (State.european && State.pawnsLeft == Const.PAWNS_EU || (State.pawnsLeft == Const.PAWNS_UK)) {
-				bar.boardTypeUK.setEnabled(true);
-				bar.boardTypeEU.setEnabled(true);
+			if (State.isBoardTypeEuropean
+					&& State.pawnsLeft == Const.NUMBER_OF_PAWNS_EUROPEAN
+					|| (State.pawnsLeft == Const.NUMBER_OF_PAWNS_BRITISH)) {
+				bar.boardTypeBritish.setEnabled(true);
+				bar.boardTypeEuropean.setEnabled(true);
 			} else {
-				bar.boardTypeUK.setEnabled(false);
-				bar.boardTypeEU.setEnabled(false);
+				bar.boardTypeBritish.setEnabled(false);
+				bar.boardTypeEuropean.setEnabled(false);
 			}
 
 			if(State.selection){
 				boolean canJump = false;
 				ButtonMenu menu = menus[State.jumpI][State.jumpJ];
 				bar.jump.remove(cantJump);
-				for (Const.jumpType type : Const.typeList) {
+				for (Const.jumpType type : Const.jumpTypes) {
 					bar.jump.remove(menu.getMenuItem(type));
-					if (Logic.canJump(State.jumpI, State.jumpJ, type)) {
+					if (Logic.isJumpLegal(State.jumpI, State.jumpJ, type)) {
 						bar.jump.add(menu.getMenuItem(type));
 						canJump = true;
 					}
@@ -326,7 +334,7 @@ public class Main {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if(State.selection){
-					for (Const.jumpType type : Const.typeList) {
+					for (Const.jumpType type : Const.jumpTypes) {
 						int eventType = 0;
 						switch (type) {
 							case LEFT -> eventType = KeyEvent.VK_LEFT;
@@ -335,12 +343,12 @@ public class Main {
 							case DOWN -> eventType = KeyEvent.VK_DOWN;
 						}
 						if (e.getKeyCode() == eventType) {
-							int i = Logic.midPosI(State.jumpI, type);
-							int j = Logic.midPosJ(State.jumpJ, type);
-							if (Logic.isField(i, j, State.european)) {
+							int i = Logic.beatenPawnNewI(State.jumpI, type);
+							int j = Logic.beatenPawnNewJ(State.jumpJ, type);
+							if (Logic.isField(i, j, State.isBoardTypeEuropean)) {
 								State.jumpI = i;
 								State.jumpJ = j;
-								Logic.noAcitveButtons();
+								Logic.deactivateButtons();
 								State.isButtonActive[i][j] = true;
 							}
 							gameUpdate();
@@ -357,7 +365,7 @@ public class Main {
 			super("Peg solitaire");
 
 			addKeyListener(new KeySelectListener());
-			setSize(Const.WINDOW_SIZE, Const.WINDOW_SIZE);
+			setSize(Const.WINDOW_DIMENSION, Const.WINDOW_DIMENSION);
 			setLocationRelativeTo(null);
 			setResizable(false);
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -370,7 +378,7 @@ public class Main {
 			add(BorderLayout.SOUTH, info);
 			add(board);
 
-			Logic.setStartingPos();
+			Logic.setStartingPosition();
 			addButtons();
 			gameUpdate();
 
